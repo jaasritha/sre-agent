@@ -41,6 +41,27 @@ Provide :
 3. One preventive measure to avoid similar issues in the future (1 sentence)
 """
 
+
+def _extract_response_text(response) -> str:
+    text = getattr(response, "output_text", "") or ""
+    if text:
+        return text
+
+    for item in getattr(response, "output", []):
+        if getattr(item, "type", None) == "message":
+            content = getattr(item, "content", []) or []
+            for part in content:
+                if getattr(part, "type", None) == "output_text" and getattr(part, "text", ""):
+                    return part.text
+
+        if getattr(item, "type", None) == "reasoning":
+            summaries = getattr(item, "summary", []) or []
+            for summary in summaries:
+                if getattr(summary, "type", None) == "summary_text" and getattr(summary, "text", ""):
+                    return summary.text
+
+    return "Error analyzing alert"
+
 def analyze_alert(alert: AlertEvent) -> str:
     logger.info(f"Analyzing alert: {alert.alert_name} for service {alert.service}")
     client = _get_openai_client()
@@ -53,9 +74,11 @@ def analyze_alert(alert: AlertEvent) -> str:
             input=prompt,
             max_output_tokens=300,
             temperature=0.3,
+            reasoning={"effort": "none"},
         )
-        logger.debug(f"Received response from model:\n{response.output_text}")
-        return response.output_text
+        response_text = _extract_response_text(response)
+        logger.debug(f"Received response from model:\n{response_text}")
+        return response_text
     except Exception as e:
         logger.error(f"Error analyzing alert: {e}")
         return "Error analyzing alert"
