@@ -8,4 +8,4 @@ An AI-powered on-call assistant that monitors Prometheus alerts, correlates sign
 
 
 > [!NOTE]
-> This is conptual version to start with and we can enhance the entire application to support enterprise level.
+> This is conceptual version to start with and we can enhance the entire application to support enterprise level.
