@@ -1,3 +1,4 @@
 __pycache__
 sre_agent.db*
 data/
+.env
