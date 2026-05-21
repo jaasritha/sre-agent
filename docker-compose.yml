@@ -1,0 +1,11 @@
+services:
+  sre-agent:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data/chroma:/app/data/chroma
+      - ./alerts.db:/app/alerts.db
+    env_file:
+      - .env
+    restart: unless-stopped
